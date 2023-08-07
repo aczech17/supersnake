@@ -69,6 +69,22 @@ impl Snake
         }
     }
 
+    pub(crate) fn get_cells(&self) -> &Vec<Cell>
+    {
+        &self.cells
+    }
+
+    pub(crate) fn is_tangled(&self) -> bool
+    {
+        let head = &self.cells[0];
+        for cell in self.cells.iter().skip(1)
+        {
+            if cell.overlap(head)
+            {return true;}
+        }
+        false
+    }
+
     pub fn go(&mut self, input: Option<Input>)
     {
         self.step();
@@ -88,10 +104,5 @@ impl Snake
         {
             self.turn(dir);
         }
-    }
-
-    pub(crate) fn get_cells(&self) -> &Vec<Cell>
-    {
-        &self.cells
     }
 }

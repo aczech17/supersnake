@@ -123,4 +123,9 @@ impl Cell
     {
         self.color
     }
+
+    pub(crate) fn overlap(&self, other: &Cell) -> bool
+    {
+        self.left == other.left && self.top == other.top
+    }
 }

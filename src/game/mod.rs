@@ -6,6 +6,7 @@ mod snake;
 
 pub(crate) type Color = (u8, u8, u8);
 type Input = minifb::Key;
+type Points = u64;
 
 pub(crate) struct Game
 {
@@ -18,7 +19,7 @@ pub(crate) struct Game
     background_color: Color,
 
     snake: Snake,
-    points: u64,
+    points: Points,
 }
 
 impl Game
@@ -85,9 +86,15 @@ impl Game
         self.background_color
     }
 
-    pub(crate) fn go(&mut self, input: Option<Input>)
+    pub(crate) fn go(&mut self, input: Option<Input>) -> Option<Points>
     {
         self.snake.go(input);
+
+        match self.snake.is_tangled()
+        {
+            true => Some(self.points),
+            false => None,
+        }
     }
 
     pub(crate) fn get_resolution(&self) -> (i64, i64)

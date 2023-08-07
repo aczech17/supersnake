@@ -59,7 +59,7 @@ const GRAY: Color = (128, 128, 128);
 
 fn main()
 {
-    let mut game = Game::new(WIDTH, HEIGHT, 10, 5,
+    let mut game = Game::new(WIDTH, HEIGHT, 10, 20,
                              YELLOW, GREEN, GRAY)
         .unwrap();
 
@@ -80,7 +80,12 @@ fn main()
     while window.is_open() && !window.is_key_down(Key::Escape)
     {
         let input = get_input(&window);
-        game.go(input);
+        let res = game.go(input);
+        if let Some(points) = res
+        {
+            println!("{}", points);
+            return;
+        }
 
         draw(&game, &mut pixels);
         window.update_with_buffer(&pixels, WIDTH as usize, HEIGHT as usize)
