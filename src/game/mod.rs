@@ -32,8 +32,7 @@ impl Game
         head_color: Color,
         snake_color: Color,
         background_color: Color,
-    )
-        -> Game
+    ) -> Result<Game, String>
     {
         let snake = Snake::new
         (
@@ -45,7 +44,22 @@ impl Game
             snake_color
         );
 
-        Game
+        let conditions = screen_width % cell_size == 0 && screen_height % cell_size == 0;
+        if !conditions
+        {
+            let error_message = format!
+            (
+                "Bad dimensions. \n\
+                 screen_width: {}\n\
+                screen_height: {}\n\
+                cell_size: {}\n",
+            screen_width, screen_height, cell_size)
+                .to_string();
+
+            return Err(error_message);
+        }
+
+        let game = Game
         {
             screen_width,
             screen_height,
@@ -56,7 +70,9 @@ impl Game
             background_color,
             snake,
             points: 0,
-        }
+        };
+
+        Ok(game)
     }
 
     pub(crate) fn get_snake_cells(&self) -> &Vec<Cell>
@@ -74,4 +90,8 @@ impl Game
         self.snake.go(input);
     }
 
+    pub(crate) fn get_resolution(&self) -> (i64, i64)
+    {
+        (self.screen_width, self.screen_height)
+    }
 }

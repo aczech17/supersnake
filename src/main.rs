@@ -28,6 +28,8 @@ fn draw(game: &Game, pixels: &mut Vec<u32>)
         *pixel = pixel_val;
     }
 
+    let (width, _height) = game.get_resolution();
+
     for cell in game.get_snake_cells()
     {
         let left = cell.get_left() as usize;
@@ -40,7 +42,7 @@ fn draw(game: &Game, pixels: &mut Vec<u32>)
         {
             for y in up..down
             {
-                let index = y * WIDTH as usize + x;
+                let index = y * width as usize + x;
                 let (r, g, b) = color;
                 let pixel_val = ((r as u32) << 16) | ((g as u32) << 8) | (b as u32);
                 pixels[index] = pixel_val;
@@ -51,14 +53,15 @@ fn draw(game: &Game, pixels: &mut Vec<u32>)
 
 const WIDTH: i64 = 800;
 const HEIGHT: i64 = 600;
-const YELLOW: Color = (0, 255, 255);
+const YELLOW: Color = (255, 255, 0);
 const GREEN: Color = (0, 255, 0);
 const GRAY: Color = (128, 128, 128);
 
 fn main()
 {
-    let mut game = Game::new(WIDTH, HEIGHT, 10, 20,
-                             YELLOW, GREEN, GRAY);
+    let mut game = Game::new(WIDTH, HEIGHT, 10, 5,
+                             YELLOW, GREEN, GRAY)
+        .unwrap();
 
     let mut pixels = vec![0; (WIDTH * HEIGHT) as usize];
     let mut window = Window::new
