@@ -11,7 +11,7 @@ pub(crate) type Color = (u8, u8, u8);
 type Input = minifb::Key;
 type Points = u64;
 
-pub(crate) struct Game
+pub struct Game
 {
     screen_width: i64,
     screen_height: i64,
