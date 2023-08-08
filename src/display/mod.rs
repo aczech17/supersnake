@@ -1,5 +1,5 @@
 use minifb::{Key, Window, WindowOptions};
-use crate::game::Game;
+use crate::game::{Color, Game};
 
 pub struct Display
 {
@@ -51,20 +51,35 @@ impl Display
         None
     }
 
+    fn color_to_pixel(color: Color) -> u32
+    {
+        let (r, g, b) = color;
+        ((r as u32) << 16) | ((g as u32) << 8) | (b as u32)
+    }
+
     fn draw(&mut self, game: &Game)
     {
-        let background_color = game.get_background_color();
+        let background_color = Self::color_to_pixel(game.get_background_color());
+        let down_bar_color = 0; // black
 
-        for pixel in &mut self.pixels
+        let (screen_width, screen_height) = self.window.get_size();
+        let (_game_width, game_height) = game.get_resolution();
+
+        for x in 0..screen_width
         {
-            let (r, g, b) = background_color;
-            let pixel_val = ((r as u32) << 16) | ((g as u32) << 8) | (b as u32);
+            for y in 0..screen_height
+            {
+                let index = y * screen_width + x;
+                let pixel_val = if y < game_height as usize
+                {background_color}
+                else { down_bar_color };
 
-            *pixel = pixel_val;
+                self.pixels[index] = pixel_val;
+            }
         }
 
-        let (width, _height) = game.get_resolution();
-
+        //let (game_width, _game_height) = game.get_resolution();
+        let (screen_width, _screen_height) = self.window.get_size();
 
         let mut all_cells = game.get_snake_cells().clone();
         let point_cell = game.get_point_cell().clone();
@@ -82,7 +97,7 @@ impl Display
             {
                 for y in up..down
                 {
-                    let index = y * width as usize + x;
+                    let index = y * screen_width as usize + x;
                     let (r, g, b) = color;
                     let pixel_val = ((r as u32) << 16) | ((g as u32) << 8) | (b as u32);
                     self.pixels[index] = pixel_val;
