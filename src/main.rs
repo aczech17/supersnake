@@ -30,7 +30,12 @@ fn draw(game: &Game, pixels: &mut Vec<u32>)
 
     let (width, _height) = game.get_resolution();
 
-    for cell in game.get_snake_cells()
+
+    let mut all_cells = game.get_snake_cells().clone();
+    let point_cell = game.get_point_cell().clone();
+    all_cells.push(point_cell);
+
+    for cell in all_cells
     {
         let left = cell.get_left() as usize;
         let down = cell.get_bottom() as usize;
@@ -59,7 +64,7 @@ const GRAY: Color = (128, 128, 128);
 
 fn main()
 {
-    let mut game = Game::new(WIDTH, HEIGHT, 10, 20,
+    let mut game = Game::new(WIDTH, HEIGHT, 10, 3,
                              YELLOW, GREEN, GRAY)
         .unwrap();
 

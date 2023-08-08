@@ -85,6 +85,35 @@ impl Snake
         false
     }
 
+    pub(crate) fn change_head(&mut self, mut new_head: Cell)
+    {
+        let snake_color = self.cells[1].get_color();
+        let head = &mut self.cells[0];
+        head.set_color(snake_color);
+        let head_direction = head.get_direction();
+
+        new_head.set_direction(*head_direction);
+
+        let mut new_cells = vec![new_head];
+        new_cells.append(&mut self.cells);
+
+        self.cells = new_cells;
+    }
+
+    pub(crate) fn is_collecting_point(&self, point_cell: &Cell) -> bool
+    {
+        // Checking for the next head position.
+
+        let head = &self.cells[0];
+        let mut new_head = head.clone();
+        new_head.step();
+        if new_head.overlap(point_cell)
+        {
+            return true;
+        }
+        false
+    }
+
     pub fn go(&mut self, input: Option<Input>)
     {
         self.step();

@@ -4,6 +4,9 @@ use crate::game::snake::Snake;
 mod cell;
 mod snake;
 
+use rand::Rng;
+use crate::game::cell::Direction::STOP;
+
 pub(crate) type Color = (u8, u8, u8);
 type Input = minifb::Key;
 type Points = u64;
@@ -13,12 +16,13 @@ pub(crate) struct Game
     screen_width: i64,
     screen_height: i64,
     cell_size: i64,
-    initial_cell_count: i64,
+    //initial_cell_count: i64,
     head_color: Color,
     snake_color: Color,
     background_color: Color,
 
     snake: Snake,
+    point_cell: Cell,
     points: Points,
 }
 
@@ -60,16 +64,20 @@ impl Game
             return Err(error_message);
         }
 
+        let point_cell = Self::make_random_cell(snake.get_cells(), screen_width,
+                                                screen_height, cell_size, snake_color);
+
         let game = Game
         {
             screen_width,
             screen_height,
             cell_size,
-            initial_cell_count,
+            //initial_cell_count,
             head_color,
             snake_color,
             background_color,
             snake,
+            point_cell,
             points: 0,
         };
 
@@ -86,19 +94,66 @@ impl Game
         self.background_color
     }
 
-    pub(crate) fn go(&mut self, input: Option<Input>) -> Option<Points>
-    {
-        self.snake.go(input);
-
-        match self.snake.is_tangled()
-        {
-            true => Some(self.points),
-            false => None,
-        }
-    }
-
     pub(crate) fn get_resolution(&self) -> (i64, i64)
     {
         (self.screen_width, self.screen_height)
+    }
+
+    fn make_random_cell(snake_cells: &Vec<Cell>, screen_width: i64,
+                        screen_height: i64, cell_size: i64, cell_color: Color) -> Cell
+    {
+        let max_iteration_count = 10;
+        let mut rng = rand::thread_rng();
+
+        for _ in 0..max_iteration_count
+        {
+            let r = rng.gen_range(0..screen_width / cell_size);
+            let left = r * cell_size;
+
+            let r = rng.gen_range(0..screen_height / cell_size);
+            let top = r * cell_size;
+
+            let new_cell = Cell::new(left, top, cell_size, STOP, screen_width,
+                                 screen_height, cell_color);
+
+            for cell in snake_cells
+            {
+                if cell.overlap(&new_cell)
+                    { continue }
+
+                return new_cell;
+            }
+        }
+
+        panic!("Max iteration count ({}) reached.", max_iteration_count);
+    }
+
+    pub(crate) fn get_point_cell(&self) -> &Cell
+    {
+        &self.point_cell
+    }
+
+    pub(crate) fn go(&mut self, input: Option<Input>) -> Option<Points>
+    {
+
+        self.snake.go(input);
+
+        if self.snake.is_collecting_point(&self.point_cell)
+        {
+            self.point_cell.set_color(self.head_color);
+            self.snake.change_head(self.point_cell.clone());
+
+            self.points += 1;
+            println!("{}", self.points);
+
+            self.point_cell = Self::make_random_cell(self.snake.get_cells(), self.screen_width,
+                                                     self.screen_height, self.cell_size, self.snake_color);
+        }
+
+        if self.snake.is_tangled()
+        {
+            return Some(self.points);
+        }
+        None
     }
 }

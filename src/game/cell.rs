@@ -1,12 +1,13 @@
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub(crate) enum Direction
 {
-    UP, DOWN, LEFT, RIGHT
+    UP, DOWN, LEFT, RIGHT, STOP,
 }
 use Direction::{UP, DOWN, LEFT, RIGHT};
 
 type Color = (u8, u8, u8);
 
+#[derive(Clone)]
 pub(crate) struct Cell
 {
     left: i64,
@@ -86,6 +87,7 @@ impl Cell
                 }
                 self.left = new_left;
             }
+            _ => {}
         }
     }
 
@@ -128,4 +130,17 @@ impl Cell
     {
         self.left == other.left && self.top == other.top
     }
+
+    pub(crate) fn set_color(&mut self, new_color: Color)
+    {
+        self.color = new_color
+    }
+
+    /*
+    pub(crate) fn get_size(&self) -> i64
+    {
+        self.size
+    }
+    */
 }
+
