@@ -89,10 +89,13 @@ impl Snake
     {
         let snake_color = self.cells[1].get_color();
         let head = &mut self.cells[0];
-        head.set_color(snake_color);
-        let head_direction = head.get_direction();
+        let head_direction = head.get_direction().clone();
+        let head_color = head.get_color();
 
-        new_head.set_direction(*head_direction);
+        head.set_color(snake_color);
+
+        new_head.set_direction(head_direction);
+        new_head.set_color(head_color);
 
         let mut new_cells = vec![new_head];
         new_cells.append(&mut self.cells);

@@ -17,7 +17,7 @@ pub(crate) struct Game
     screen_height: i64,
     cell_size: i64,
     //initial_cell_count: i64,
-    head_color: Color,
+    //head_color: Color,
     snake_color: Color,
     background_color: Color,
 
@@ -73,7 +73,7 @@ impl Game
             screen_height,
             cell_size,
             //initial_cell_count,
-            head_color,
+            //head_color,
             snake_color,
             background_color,
             snake,
@@ -140,7 +140,6 @@ impl Game
 
         if self.snake.is_collecting_point(&self.point_cell)
         {
-            self.point_cell.set_color(self.head_color);
             self.snake.change_head(self.point_cell.clone());
 
             self.points += 1;

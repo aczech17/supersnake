@@ -79,7 +79,8 @@ fn main()
         .expect("Spierdoliło się okno.");
 
     // Limit to max ~60 fps update rate
-    window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));
+    //window.limit_update_rate(Some(std::time::Duration::from_micros(16600)));
+    window.limit_update_rate(Some(std::time::Duration::from_micros(40000)));
 
 
     while window.is_open() && !window.is_key_down(Key::Escape)

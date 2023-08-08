@@ -62,7 +62,7 @@ impl Cell
             {
                 let mut new_top = self.top + self.size;
                 let new_bottom = new_top + self.size;
-                if new_bottom >= self.screen_height
+                if new_bottom > self.screen_height
                 {
                     new_top = 0;
                 }
@@ -81,7 +81,7 @@ impl Cell
             {
                 let mut new_left = self.left + self.size;
                 let new_right = new_left + self.size;
-                if new_right >= self.screen_width
+                if new_right > self.screen_width
                 {
                     new_left = 0;
                 }
