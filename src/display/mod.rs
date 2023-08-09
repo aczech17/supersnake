@@ -1,20 +1,33 @@
-use minifb::{Key, Window, WindowOptions};
 use crate::game::{Color, Game};
+use minifb::{Key, Window, WindowOptions};
+
+use std::ops::Range;
+type Area = (Range<usize>, Range<usize>);
+
+use itertools;
+use itertools::Itertools;
 
 pub struct Display
 {
-    //game_width: i64,
-    //game_height: i64,
+    game_area: Area,
+    down_bar: Area,
     window: Window,
     pixels: Vec<u32>,
 }
 
 impl Display
 {
-    pub fn new(name: &str, width: usize, height: usize) -> Result<Display, String>
+    pub fn new(name: &str, game_area: Area, down_bar: Area) -> Result<Display, String>
     {
-        let window = Window::new(name, width, height, WindowOptions::default());
-        let mut window = match window
+        let (game_xs, _game_ys) = game_area.clone();
+        let (_down_bar_xs, down_bar_ys) = down_bar.clone();
+        let window_width = game_xs.end;
+        let window_height = down_bar_ys.end;
+
+        let window_creation = Window::new(name, window_width, window_height,
+                                 WindowOptions::default());
+
+        let mut window = match window_creation
         {
             Ok(win) => win,
             Err(err) =>
@@ -28,11 +41,12 @@ impl Display
         // Limit fps
         window.limit_update_rate(Some(std::time::Duration::from_micros(40000)));
 
-
         let display = Display
         {
+            game_area,
+            down_bar,
             window,
-            pixels: vec![0; width * height],
+            pixels: vec![0; window_width * window_height],
         };
 
         Ok(display)
@@ -57,34 +71,30 @@ impl Display
         ((r as u32) << 16) | ((g as u32) << 8) | (b as u32)
     }
 
-    fn draw(&mut self, game: &Game)
+    fn draw_game_background(&mut self, game: &Game)
     {
-        let background_color = Self::color_to_pixel(game.get_background_color());
-        let down_bar_color = 0; // black
+        let background_color = game.get_background_color();
 
-        let (screen_width, screen_height) = self.window.get_size();
-        let (_game_width, game_height) = game.get_resolution();
+        let (game_xs, game_ys) = self.game_area.clone();
+        let game_width = game_xs.end - game_xs.start;
 
-        for x in 0..screen_width
+        for (x, y) in game_xs.cartesian_product(game_ys)
         {
-            for y in 0..screen_height
-            {
-                let index = y * screen_width + x;
-                let pixel_val = if y < game_height as usize
-                {background_color}
-                else { down_bar_color };
-
-                self.pixels[index] = pixel_val;
-            }
+            let index = (y * game_width + x) as usize;
+            let pixel_val = Self::color_to_pixel(background_color);
+            self.pixels[index] = pixel_val;
         }
+    }
 
-        //let (game_width, _game_height) = game.get_resolution();
-        let (screen_width, _screen_height) = self.window.get_size();
-
+    fn draw_cells(&mut self, game: &Game)
+    {
+        // Join snake cells and point cell to display all of them.
         let mut all_cells = game.get_snake_cells().clone();
         let point_cell = game.get_point_cell().clone();
         all_cells.push(point_cell);
 
+        let (game_xs, _game_ys) = self.game_area.clone();
+        let game_width = game_xs.end - game_xs.start;
         for cell in all_cells
         {
             let left = cell.get_left() as usize;
@@ -97,13 +107,38 @@ impl Display
             {
                 for y in up..down
                 {
-                    let index = y * screen_width as usize + x;
+                    let index = y * game_width as usize + x;
                     let (r, g, b) = color;
                     let pixel_val = ((r as u32) << 16) | ((g as u32) << 8) | (b as u32);
                     self.pixels[index] = pixel_val;
                 }
             }
         }
+    }
+
+    fn draw_game(&mut self, game: &Game)
+    {
+        self.draw_game_background(game);
+        self.draw_cells(game);
+    }
+
+    fn draw_down_bar(&mut self)
+    {
+        let down_bar_color = 0; // black
+
+        let (xs, ys) = self.down_bar.clone();
+        let bar_width = xs.end - xs.start;
+        for (x, y) in xs.cartesian_product(ys)
+        {
+            let index = y * bar_width + x;
+            self.pixels[index] = down_bar_color;
+        }
+    }
+
+    fn draw(&mut self, game: &Game)
+    {
+        self.draw_game(game);
+        self.draw_down_bar();
     }
 
     pub fn display_loop(&mut self, game: &mut Game)

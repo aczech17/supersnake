@@ -30,8 +30,8 @@ impl Game
 {
     pub(crate) fn new
     (
-        screen_width: i64,
-        screen_height: i64,
+        screen_width: usize,
+        screen_height: usize,
         cell_size: i64,
         initial_cell_count: i64,
         head_color: Color,
@@ -39,6 +39,8 @@ impl Game
         background_color: Color,
     ) -> Result<Game, String>
     {
+        let screen_width = screen_width as i64;
+        let screen_height = screen_height as i64;
         let snake = Snake::new
         (
             screen_width,
@@ -94,10 +96,13 @@ impl Game
         self.background_color
     }
 
+    /*
     pub(crate) fn get_resolution(&self) -> (i64, i64)
     {
         (self.screen_width, self.screen_height)
     }
+    */
+
 
     fn make_random_cell(snake_cells: &Vec<Cell>, screen_width: i64,
                         screen_height: i64, cell_size: i64, cell_color: Color) -> Cell
