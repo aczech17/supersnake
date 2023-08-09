@@ -181,6 +181,7 @@ impl Display
         self.draw_game(game)?;
         self.draw_down_bar();
         self.draw_digit('0', 0)?;
+        self.draw_digit('1', 40)?;
 
         Ok(())
     }
