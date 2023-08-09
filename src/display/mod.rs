@@ -199,6 +199,17 @@ impl Display
         Ok(())
     }
 
+    fn draw_game_over(&mut self)
+    {
+        let (game_area_xs, game_area_ys) = self.game_area.clone();
+        let game_area_width = game_area_xs.end - game_area_xs.start;
+        for (x, y) in game_area_xs.cartesian_product(game_area_ys)
+        {
+            let index = y * game_area_width + x;
+            self.pixels[index] = 0; // black
+        }
+    }
+
     pub fn display_loop(&mut self, game: &mut Game) -> Result<(), String>
     {
         while self.window.is_open() && !self.window.is_key_down(Key::Escape)
@@ -212,11 +223,8 @@ impl Display
             }
             else
             {
-                println!("GAME OVER");
-
+                self.draw_game_over();
             }
-
-
 
             let (width, height) = self.window.get_size();
 
