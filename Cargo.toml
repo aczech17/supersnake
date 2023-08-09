@@ -1,6 +1,6 @@
 [package]
 name = "supersnake"
-version = "0.21.37"
+version = "0.25.67"
 edition = "2021"
 
 [profile.release]
