@@ -70,6 +70,8 @@ impl Display
         ((r as u32) << 16) | ((g as u32) << 8) | (b as u32)
     }
 
+
+
     fn draw_game_background(&mut self, game: &Game)
     {
         let background_color = game.get_background_color();

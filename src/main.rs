@@ -1,5 +1,6 @@
 mod game;
 mod display;
+mod bmp;
 
 use crate::display::Display;
 use crate::game::{Color, Game};
