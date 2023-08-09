@@ -2,10 +2,13 @@ use crate::game::{Color, Game};
 use minifb::{Key, Window, WindowOptions};
 
 use std::ops::Range;
+use bmp::BmpResult;
+
 type Area = (Range<usize>, Range<usize>);
 
 use itertools::Itertools;
-use crate::bmp::BMP;
+
+extern crate bmp;
 
 pub struct Display
 {
@@ -89,18 +92,14 @@ impl Display
     fn draw_digit(&mut self, digit: char, digit_position: usize) -> Result<(), String>
     {
         let filename = format!("assets/{digit}.bmp");
-        let bmp_open = BMP::new(&filename);
+        let bmp_open = bmp::open(filename);
         let bmp = match bmp_open
         {
             Ok(b) => b,
-            Err(e) =>
-            {
-                let err_msg = format!("Could not open file {}. {}", filename, e.to_string());
-                return Err(err_msg);
-            }
+            Err(e) => return Err(e.to_string()),
         };
 
-        let bmp_pixels = bmp.get_pixels();
+        //let bmp_pixels = bmp.get_pixels();
 
         let bmp_xs = 0..bmp.get_width();
         let bmp_ys = 0..bmp.get_height();
@@ -112,12 +111,11 @@ impl Display
 
         for (bmp_x, bmp_y) in bmp_xs.cartesian_product(bmp_ys)
         {
-            let bmp_index = bmp_y * bmp.get_width() + bmp_x;
-            let (r, g, b) = bmp_pixels[bmp_index];
-            let bmp_value = Self::color_to_pixel((r, g, b));
+            let color = bmp.get_pixel(bmp_x, bmp_y);
+            let bmp_value = Self::color_to_pixel((color.r, color.g, color.b));
 
-            let screen_x = down_bar_left + digit_position + bmp_x;
-            let screen_y = down_bar_top + bmp_y;
+            let screen_x = down_bar_left + digit_position + bmp_x as usize;
+            let screen_y = down_bar_top + bmp_y as usize;
             let screen_index = screen_y * screen_width + screen_x;
             self.pixels[screen_index] = bmp_value;
         }
