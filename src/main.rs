@@ -1,3 +1,5 @@
+#![windows_subsystem = "windows"] // hide the console window
+
 mod game;
 mod display;
 use crate::display::Display;
@@ -12,7 +14,7 @@ const NAVY_BLUE: Color = (0, 0, 128);
 
 fn main()
 {
-    let mut game = Game::new(WIDTH, HEIGHT, 10, 15,
+    let mut game = Game::new(WIDTH, HEIGHT, 10, 3,
                              YELLOW, GREEN, NAVY_BLUE)
         .unwrap();
 
