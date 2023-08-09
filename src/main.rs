@@ -9,7 +9,6 @@ const WIDTH: usize = 400;
 const HEIGHT: usize = 400;
 const YELLOW: Color = (255, 255, 0);
 const GREEN: Color = (0, 255, 0);
-//const GRAY: Color = (128, 128, 128);
 const NAVY_BLUE: Color = (0, 0, 128);
 
 fn main()

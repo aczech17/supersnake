@@ -135,12 +135,5 @@ impl Cell
     {
         self.color = new_color
     }
-
-    /*
-    pub(crate) fn get_size(&self) -> i64
-    {
-        self.size
-    }
-    */
 }
 

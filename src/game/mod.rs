@@ -16,8 +16,6 @@ pub struct Game
     screen_width: i64,
     screen_height: i64,
     cell_size: i64,
-    //initial_cell_count: i64,
-    //head_color: Color,
     snake_color: Color,
     background_color: Color,
 
@@ -74,8 +72,6 @@ impl Game
             screen_width,
             screen_height,
             cell_size,
-            //initial_cell_count,
-            //head_color,
             snake_color,
             background_color,
             snake,
@@ -95,14 +91,6 @@ impl Game
     {
         self.background_color
     }
-
-    /*
-    pub(crate) fn get_resolution(&self) -> (i64, i64)
-    {
-        (self.screen_width, self.screen_height)
-    }
-    */
-
 
     fn make_random_cell(snake_cells: &Vec<Cell>, screen_width: i64,
                         screen_height: i64, cell_size: i64, cell_color: Color) -> Cell
@@ -145,18 +133,20 @@ impl Game
 
     pub(crate) fn go(&mut self, input: Option<Input>) -> bool
     {
-
         self.snake.go(input);
 
         if self.snake.is_collecting_point(&self.point_cell)
         {
             self.snake.change_head(self.point_cell.clone());
-
             self.points += 1;
-            println!("{}", self.points);
-
-            self.point_cell = Self::make_random_cell(self.snake.get_cells(), self.screen_width,
-                                                     self.screen_height, self.cell_size, self.snake_color);
+            self.point_cell = Self::make_random_cell
+            (
+                self.snake.get_cells(),
+                self.screen_width,
+                self.screen_height,
+                self.cell_size,
+                self.snake_color
+            );
         }
 
         if self.snake.is_tangled()

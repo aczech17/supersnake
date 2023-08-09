@@ -150,8 +150,6 @@ impl Display
             Err(e) => return Err(e.to_string()),
         };
 
-        //let bmp_pixels = bmp.get_pixels();
-
         let bmp_xs = 0..bmp.get_width();
         let bmp_ys = 0..bmp.get_height();
 
