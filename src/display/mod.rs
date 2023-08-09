@@ -14,6 +14,7 @@ pub struct Display
     down_bar: Area,
     window: Window,
     pixels: Vec<u32>,
+    game_going: bool,
 }
 
 impl Display
@@ -48,6 +49,7 @@ impl Display
             down_bar,
             window,
             pixels: vec![0; window_width * window_height],
+            game_going: true,
         };
 
         Ok(display)
@@ -117,7 +119,7 @@ impl Display
         }
     }
 
-    fn draw_game(&mut self, game: &Game) -> Result<(), String>
+    fn draw_game_area(&mut self, game: &Game) -> Result<(), String>
     {
         self.draw_game_background(game);
         self.draw_cells(game);
@@ -188,9 +190,9 @@ impl Display
         }
     }
 
-    fn draw(&mut self, game: &Game) -> Result<(), String>
+    fn draw_game(&mut self, game: &Game) -> Result<(), String>
     {
-        self.draw_game(game)?;
+        self.draw_game_area(game)?;
         self.draw_down_bar();
         self.draw_points(game);
 
@@ -203,9 +205,18 @@ impl Display
         {
             let input = self.get_input();
 
-            let res = game.go(input);
+            if self.game_going
+            {
+                self.game_going = game.go(input);
+                self.draw_game(game)?;
+            }
+            else
+            {
+                println!("GAME OVER");
 
-            self.draw(game)?;
+            }
+
+
 
             let (width, height) = self.window.get_size();
 
