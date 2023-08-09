@@ -5,6 +5,7 @@ use std::ops::Range;
 type Area = (Range<usize>, Range<usize>);
 
 use itertools::Itertools;
+use crate::bmp::BMP;
 
 pub struct Display
 {
@@ -70,8 +71,6 @@ impl Display
         ((r as u32) << 16) | ((g as u32) << 8) | (b as u32)
     }
 
-
-
     fn draw_game_background(&mut self, game: &Game)
     {
         let background_color = game.get_background_color();
@@ -85,6 +84,45 @@ impl Display
             let pixel_val = Self::color_to_pixel(background_color);
             self.pixels[index] = pixel_val;
         }
+    }
+
+    fn draw_digit(&mut self, digit: char, digit_position: usize) -> Result<(), String>
+    {
+        let filename = format!("assets/{digit}.bmp");
+        let bmp_open = BMP::new(&filename);
+        let bmp = match bmp_open
+        {
+            Ok(b) => b,
+            Err(e) =>
+            {
+                let err_msg = format!("Could not open file {}. {}", filename, e.to_string());
+                return Err(err_msg);
+            }
+        };
+
+        let bmp_pixels = bmp.get_pixels();
+
+        let bmp_xs = 0..bmp.get_width();
+        let bmp_ys = 0..bmp.get_height();
+
+        let (down_bar_xs, down_bar_ys) = self.down_bar.clone();
+        let down_bar_left = down_bar_xs.start;
+        let down_bar_top = down_bar_ys.start;
+        let screen_width = down_bar_xs.end - down_bar_xs.start;
+
+        for (bmp_x, bmp_y) in bmp_xs.cartesian_product(bmp_ys)
+        {
+            let bmp_index = bmp_y * bmp.get_width() + bmp_x;
+            let (r, g, b) = bmp_pixels[bmp_index];
+            let bmp_value = Self::color_to_pixel((r, g, b));
+
+            let screen_x = down_bar_left + digit_position + bmp_x;
+            let screen_y = down_bar_top + bmp_y;
+            let screen_index = screen_y * screen_width + screen_x;
+            self.pixels[screen_index] = bmp_value;
+        }
+
+        Ok(())
     }
 
     fn draw_cells(&mut self, game: &Game)
@@ -117,10 +155,12 @@ impl Display
         }
     }
 
-    fn draw_game(&mut self, game: &Game)
+    fn draw_game(&mut self, game: &Game) -> Result<(), String>
     {
         self.draw_game_background(game);
         self.draw_cells(game);
+
+        Ok(())
     }
 
     fn draw_down_bar(&mut self)
@@ -136,10 +176,13 @@ impl Display
         }
     }
 
-    fn draw(&mut self, game: &Game)
+    fn draw(&mut self, game: &Game) -> Result<(), String>
     {
-        self.draw_game(game);
+        self.draw_game(game)?;
         self.draw_down_bar();
+        self.draw_digit('0', 0)?;
+
+        Ok(())
     }
 
     pub fn display_loop(&mut self, game: &mut Game) -> Result<(), String>
@@ -155,7 +198,7 @@ impl Display
                 return Ok(());
             }
 
-            self.draw(game);
+            self.draw(game)?;
 
             let (width, height) = self.window.get_size();
 

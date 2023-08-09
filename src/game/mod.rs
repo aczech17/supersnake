@@ -138,6 +138,11 @@ impl Game
         &self.point_cell
     }
 
+    pub fn get_points(&self) -> Points
+    {
+        self.points
+    }
+
     pub(crate) fn go(&mut self, input: Option<Input>) -> Option<Points>
     {
 
