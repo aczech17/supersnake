@@ -12,7 +12,7 @@ const NAVY_BLUE: Color = (0, 0, 128);
 
 fn main()
 {
-    let mut game = Game::new(WIDTH, HEIGHT, 10, 3,
+    let mut game = Game::new(WIDTH, HEIGHT, 10, 15,
                              YELLOW, GREEN, NAVY_BLUE)
         .unwrap();
 

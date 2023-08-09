@@ -204,11 +204,6 @@ impl Display
             let input = self.get_input();
 
             let res = game.go(input);
-            if let Some(points) = res
-            {
-                println!("{}", points);
-                return Ok(());
-            }
 
             self.draw(game)?;
 

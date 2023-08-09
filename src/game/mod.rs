@@ -143,7 +143,7 @@ impl Game
         self.points
     }
 
-    pub(crate) fn go(&mut self, input: Option<Input>) -> Option<Points>
+    pub(crate) fn go(&mut self, input: Option<Input>) -> bool
     {
 
         self.snake.go(input);
@@ -161,8 +161,8 @@ impl Game
 
         if self.snake.is_tangled()
         {
-            return Some(self.points);
+            return false;
         }
-        None
+        true
     }
 }
