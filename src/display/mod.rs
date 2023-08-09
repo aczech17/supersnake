@@ -2,8 +2,6 @@ use crate::game::{Color, Game};
 use minifb::{Key, Window, WindowOptions};
 
 use std::ops::Range;
-use bmp::BmpResult;
-
 type Area = (Range<usize>, Range<usize>);
 
 use itertools::Itertools;
@@ -89,40 +87,6 @@ impl Display
         }
     }
 
-    fn draw_digit(&mut self, digit: char, digit_position: usize) -> Result<(), String>
-    {
-        let filename = format!("assets/{digit}.bmp");
-        let bmp_open = bmp::open(filename);
-        let bmp = match bmp_open
-        {
-            Ok(b) => b,
-            Err(e) => return Err(e.to_string()),
-        };
-
-        //let bmp_pixels = bmp.get_pixels();
-
-        let bmp_xs = 0..bmp.get_width();
-        let bmp_ys = 0..bmp.get_height();
-
-        let (down_bar_xs, down_bar_ys) = self.down_bar.clone();
-        let down_bar_left = down_bar_xs.start;
-        let down_bar_top = down_bar_ys.start;
-        let screen_width = down_bar_xs.end - down_bar_xs.start;
-
-        for (bmp_x, bmp_y) in bmp_xs.cartesian_product(bmp_ys)
-        {
-            let color = bmp.get_pixel(bmp_x, bmp_y);
-            let bmp_value = Self::color_to_pixel((color.r, color.g, color.b));
-
-            let screen_x = down_bar_left + digit_position + bmp_x as usize;
-            let screen_y = down_bar_top + bmp_y as usize;
-            let screen_index = screen_y * screen_width + screen_x;
-            self.pixels[screen_index] = bmp_value;
-        }
-
-        Ok(())
-    }
-
     fn draw_cells(&mut self, game: &Game)
     {
         // Join snake cells and point cell to display all of them.
@@ -174,12 +138,61 @@ impl Display
         }
     }
 
+    fn draw_digit(&mut self, digit: char, digit_position: usize) -> Result<(), String>
+    {
+        let filename = format!("assets/{digit}.bmp");
+        let bmp_open = bmp::open(filename);
+        let bmp = match bmp_open
+        {
+            Ok(b) => b,
+            Err(e) => return Err(e.to_string()),
+        };
+
+        //let bmp_pixels = bmp.get_pixels();
+
+        let bmp_xs = 0..bmp.get_width();
+        let bmp_ys = 0..bmp.get_height();
+
+        let (down_bar_xs, down_bar_ys) = self.down_bar.clone();
+        let down_bar_left = down_bar_xs.start;
+        let down_bar_top = down_bar_ys.start;
+        let screen_width = down_bar_xs.end - down_bar_xs.start;
+
+        for (bmp_x, bmp_y) in bmp_xs.cartesian_product(bmp_ys)
+        {
+            let color = bmp.get_pixel(bmp_x, bmp_y);
+            let bmp_value = Self::color_to_pixel((color.r, color.g, color.b));
+
+            let screen_x = down_bar_left + digit_position + bmp_x as usize;
+            let screen_y = down_bar_top + bmp_y as usize;
+            let screen_index = screen_y * screen_width + screen_x;
+            self.pixels[screen_index] = bmp_value;
+        }
+
+        Ok(())
+    }
+
+    fn draw_points(&mut self, game: &Game)
+    {
+        let digit_width = bmp::open("assets/0.bmp")
+            .unwrap()
+            .get_width()
+        as usize;
+
+        let points = game.get_points().to_string();
+        let mut digit_position = 0;
+        for digit in points.chars()
+        {
+            self.draw_digit(digit, digit_position).unwrap();
+            digit_position += digit_width;
+        }
+    }
+
     fn draw(&mut self, game: &Game) -> Result<(), String>
     {
         self.draw_game(game)?;
         self.draw_down_bar();
-        self.draw_digit('0', 0)?;
-        self.draw_digit('1', 40)?;
+        self.draw_points(game);
 
         Ok(())
     }
