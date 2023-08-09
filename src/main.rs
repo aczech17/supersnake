@@ -22,6 +22,7 @@ fn main()
     let mut display = Display::new("Snake", game_area, down_bar)
         .unwrap();
 
-    display.display_loop(&mut game);
+    display.display_loop(&mut game)
+        .unwrap();
 }
 

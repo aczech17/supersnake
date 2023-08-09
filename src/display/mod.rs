@@ -4,7 +4,6 @@ use minifb::{Key, Window, WindowOptions};
 use std::ops::Range;
 type Area = (Range<usize>, Range<usize>);
 
-use itertools;
 use itertools::Itertools;
 
 pub struct Display
@@ -141,7 +140,7 @@ impl Display
         self.draw_down_bar();
     }
 
-    pub fn display_loop(&mut self, game: &mut Game)
+    pub fn display_loop(&mut self, game: &mut Game) -> Result<(), String>
     {
         while self.window.is_open() && !self.window.is_key_down(Key::Escape)
         {
@@ -151,14 +150,26 @@ impl Display
             if let Some(points) = res
             {
                 println!("{}", points);
-                return;
+                return Ok(());
             }
 
             self.draw(game);
 
             let (width, height) = self.window.get_size();
-            self.window.update_with_buffer(&self.pixels, width, height)
-                .unwrap();
+
+            let display_result = self.window.update_with_buffer(&self.pixels, width, height);
+            match display_result
+            {
+                Ok(_) => {},
+                Err(err) =>
+                {
+                    let err_msg = format!("Could not display to the window. {}", err.to_string())
+                        .to_string();
+                    return Err(err_msg);
+                }
+            }
         }
+
+        Ok(())
     }
 }
