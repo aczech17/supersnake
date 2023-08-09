@@ -2,8 +2,6 @@ mod game;
 mod display;
 mod bmp;
 
-use std::fs::File;
-use std::io::Read;
 use crate::display::Display;
 use crate::game::{Color, Game};
 

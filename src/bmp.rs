@@ -1,5 +1,5 @@
 use std::fs::File;
-use std::io::{Read, Seek, SeekFrom};
+use std::io::Read;
 
 pub struct BMP
 {
@@ -15,7 +15,7 @@ impl BMP
         let mut file = match File::open(filename)
         {
             Ok(f) => f,
-            Err(e) =>
+            Err(_e) =>
             {
                 let err_msg = format!("Could not open the file {}.", filename);
                 return Err(err_msg);
@@ -47,9 +47,9 @@ impl BMP
 
         let mut pixels = Vec::new();
         let mut index = offset;
-        for y in 0..height
+        for _y in 0..height
         {
-            for x in 0..width
+            for _x in 0..width
             {
                 let (r, g, b) =
                     (content[index as usize], content[index as usize + 1], content[index as usize + 2]);

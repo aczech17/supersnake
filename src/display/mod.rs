@@ -80,7 +80,7 @@ impl Display
 
         for (x, y) in game_xs.cartesian_product(game_ys)
         {
-            let index = (y * game_width + x) as usize;
+            let index = y * game_width + x;
             let pixel_val = Self::color_to_pixel(background_color);
             self.pixels[index] = pixel_val;
         }
