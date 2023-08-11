@@ -202,10 +202,15 @@ impl Display
     {
         let (game_area_xs, game_area_ys) = self.game_area.clone();
         let game_area_width = game_area_xs.end - game_area_xs.start;
+
+        let game_over_img = bmp::open("assets/game_over.bmp").unwrap();
+
         for (x, y) in game_area_xs.cartesian_product(game_area_ys)
         {
+            let pixel = game_over_img.get_pixel(x as u32, y as u32);
+            let pixel_value = Self::color_to_pixel((pixel.r, pixel.g, pixel.b));
             let index = y * game_area_width + x;
-            self.pixels[index] = 0; // black
+            self.pixels[index] = pixel_value;
         }
     }
 
