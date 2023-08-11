@@ -22,6 +22,7 @@ pub struct Game
     snake: Snake,
     point_cell: Cell,
     points: Points,
+    pace: u64,
 }
 
 impl Game
@@ -77,6 +78,7 @@ impl Game
             snake,
             point_cell,
             points: 0,
+            pace: 0,
         };
 
         Ok(game)
@@ -131,6 +133,17 @@ impl Game
         self.points
     }
 
+    pub fn get_pace(&self) -> u64
+    {
+        self.pace
+    }
+
+    fn increase_pace(&mut self)
+    {
+        // quadratic function
+        self.pace = self.pace + 2 * ((self.pace as f64).sqrt()) as u64 + 1;
+    }
+
     pub(crate) fn go(&mut self, input: Option<Input>) -> bool
     {
         self.snake.go(input);
@@ -147,6 +160,8 @@ impl Game
                 self.cell_size,
                 self.snake_color
             );
+
+            self.increase_pace();
         }
 
         if self.snake.is_tangled()

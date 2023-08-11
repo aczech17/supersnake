@@ -15,7 +15,10 @@ pub struct Display
     window: Window,
     pixels: Vec<u32>,
     game_going: bool,
+    delay: u64,
 }
+
+const INITIAL_DELAY: u64 = 80000;
 
 impl Display
 {
@@ -29,7 +32,7 @@ impl Display
         let window_creation = Window::new(name, window_width, window_height,
                                  WindowOptions::default());
 
-        let mut window = match window_creation
+        let window = match window_creation
         {
             Ok(win) => win,
             Err(err) =>
@@ -40,9 +43,6 @@ impl Display
             }
         };
 
-        // Limit fps
-        window.limit_update_rate(Some(std::time::Duration::from_micros(40000)));
-
         let display = Display
         {
             game_area,
@@ -50,6 +50,7 @@ impl Display
             window,
             pixels: vec![0; window_width * window_height],
             game_going: true,
+            delay: 80000,
         };
 
         Ok(display)
@@ -208,10 +209,23 @@ impl Display
         }
     }
 
+    fn game_pace_to_delay(pace: u64) -> u64
+    {
+        if INITIAL_DELAY >= pace
+            {INITIAL_DELAY - pace}
+        else { 0 }
+    }
+
     pub fn display_loop(&mut self, game: &mut Game) -> Result<(), String>
     {
         while self.window.is_open() && !self.window.is_key_down(Key::Escape)
         {
+            let pace = game.get_pace();
+            self.delay = Self::game_pace_to_delay(pace);
+
+            // Limit fps;
+            self.window.limit_update_rate(Some(std::time::Duration::from_micros(self.delay)));
+
             let input = self.get_input();
 
             if self.game_going
