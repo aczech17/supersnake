@@ -66,7 +66,8 @@ impl Game
         }
 
         let point_cell = Self::make_random_cell(snake.get_cells(), screen_width,
-                                                screen_height, cell_size, snake_color);
+                                                screen_height, cell_size, snake_color,
+        None);
 
         let game = Game
         {
@@ -95,7 +96,8 @@ impl Game
     }
 
     fn make_random_cell(snake_cells: &Vec<Cell>, screen_width: i64,
-                        screen_height: i64, cell_size: i64, cell_color: Color) -> Cell
+                        screen_height: i64, cell_size: i64, cell_color: Color,
+                        existing_point_cell: Option<&Cell>) -> Cell
     {
         let max_iteration_count = 10;
         let mut rng = rand::thread_rng();
@@ -110,6 +112,12 @@ impl Game
 
             let new_cell = Cell::new(left, top, cell_size, STOP, screen_width,
                                  screen_height, cell_color);
+
+            if let Some(cell) = existing_point_cell
+            {
+                if new_cell.overlap(cell)
+                {continue;}
+            }
 
             for cell in snake_cells
             {
@@ -158,7 +166,8 @@ impl Game
                 self.screen_width,
                 self.screen_height,
                 self.cell_size,
-                self.snake_color
+                self.snake_color,
+                Some(&self.point_cell)
             );
 
             self.increase_pace();
