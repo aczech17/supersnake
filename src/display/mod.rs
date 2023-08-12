@@ -1,10 +1,16 @@
+use std::fs::File;
+use std::io::BufReader;
 use crate::game::{Color, Game};
 use minifb::{Key, Window, WindowOptions};
 
 use std::ops::Range;
+use std::sync::mpsc;
+use std::sync::mpsc::Receiver;
+
 type Area = (Range<usize>, Range<usize>);
 
 use itertools::Itertools;
+use rodio::Sink;
 
 extern crate bmp;
 
@@ -221,8 +227,36 @@ impl Display
         else { 0 }
     }
 
+    fn play_music(_music_sink: Sink, receiver: Receiver<bool>)
+    {
+        'music_loop: loop
+        {
+            match receiver.recv()
+            {
+                Ok(playing) =>
+                {
+                    if playing == false
+                        { break 'music_loop; } // drop the sink, stop the music
+                }
+                Err(e) => {eprintln!("{}", e.to_string());},
+            }
+        }
+    }
+
     pub fn display_loop(&mut self, game: &mut Game) -> Result<(), String>
     {
+        let (_stream, stream_handle) = rodio::OutputStream::try_default()
+            .unwrap();
+        let file = File::open("assets/music.mp3").unwrap();
+        let source = rodio::Decoder::new(BufReader::new(file)).unwrap();
+
+        let music_sink = rodio::Sink::try_new(&stream_handle)
+            .unwrap();
+        music_sink.append(source);
+
+        let (music_playing_sender, music_playing_receiver) = mpsc::channel();
+        std::thread::spawn(|| Self::play_music(music_sink, music_playing_receiver));
+
         while self.window.is_open() && !self.window.is_key_down(Key::Escape)
         {
             let pace = game.get_pace();
@@ -240,6 +274,12 @@ impl Display
             }
             else
             {
+                match music_playing_sender.send(false)
+                {
+                    Ok(_) => {}
+                    Err(_) => {/* The thread has already stopped. Nevermind. */}
+                }
+
                 self.draw_game_over();
             }
 
