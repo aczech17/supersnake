@@ -2,19 +2,21 @@
 
 mod game;
 mod display;
+mod config;
+
+use crate::config::Config;
 use crate::display::Display;
-use crate::game::{Color, Game};
+use crate::game::Game;
 
 const WIDTH: usize = 400;
 const HEIGHT: usize = 400;
-const YELLOW: Color = (255, 255, 0);
-const GREEN: Color = (0, 255, 0);
-const NAVY_BLUE: Color = (0, 0, 128);
 
 fn main()
 {
+    let config = Config::new("config.json").unwrap();
+
     let mut game = Game::new(WIDTH, HEIGHT, 10, 3,
-                             YELLOW, GREEN, NAVY_BLUE)
+                             config.head_color, config.snake_color, config.background_color)
         .unwrap();
 
     let game_area = ((0..WIDTH as usize), (0..HEIGHT as usize));
