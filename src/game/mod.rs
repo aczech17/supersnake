@@ -102,7 +102,7 @@ impl Game
         let max_iteration_count = 10;
         let mut rng = rand::thread_rng();
 
-        for _ in 0..max_iteration_count
+        'outer_loop: for _ in 0..max_iteration_count
         {
             let r = rng.gen_range(0..screen_width / cell_size);
             let left = r * cell_size;
@@ -119,10 +119,10 @@ impl Game
                 {continue;}
             }
 
-            for cell in snake_cells
+            '_inner_loop: for cell in snake_cells
             {
                 if cell.overlap(&new_cell)
-                    { continue }
+                    { continue 'outer_loop; }
 
                 return new_cell;
             }
