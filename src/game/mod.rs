@@ -149,7 +149,7 @@ impl Game
     fn increase_pace(&mut self)
     {
         // quadratic function
-        self.pace = self.pace + 2 * ((self.pace as f64).sqrt()) as u64 + 1;
+        self.pace = self.points * self.points;
     }
 
     pub(crate) fn go(&mut self, input: Option<Input>) -> bool
