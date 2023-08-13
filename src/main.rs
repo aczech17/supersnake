@@ -21,7 +21,7 @@ fn main()
 
     let game_area = ((0..WIDTH as usize), (0..HEIGHT as usize));
     let down_bar = ((0..WIDTH as usize), (HEIGHT as usize..(HEIGHT as usize) + 100));
-    let mut display = Display::new("Snake", game_area, down_bar)
+    let mut display = Display::new("Super Snake", game_area, down_bar)
         .unwrap();
 
     display.display_loop(&mut game)
