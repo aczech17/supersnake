@@ -8,6 +8,7 @@ use std::ops::Range;
 type Area = (Range<usize>, Range<usize>);
 
 use itertools::Itertools;
+use rodio::Sink;
 
 extern crate bmp;
 
@@ -224,18 +225,29 @@ impl Display
         else { 0 }
     }
 
+    fn play_music(music_sink: &Option<Sink>, filename: &str)
+    {
+        match music_sink
+        {
+            Some(sink) =>
+            {
+                let file = File::open(filename).unwrap();
+                let source = rodio::Decoder::new(BufReader::new(file))
+                    .unwrap();
+                sink.append(source);
+            },
+            None => {},
+        }
+    }
+
     pub fn display_loop(&mut self, game: &mut Game) -> Result<(), String>
     {
         let (_stream, stream_handle) = rodio::OutputStream::try_default()
             .unwrap();
-        let file = File::open("assets/music.mp3").unwrap();
-        let source = rodio::Decoder::new(BufReader::new(file)).unwrap();
-
         let music_sink = rodio::Sink::try_new(&stream_handle)
             .unwrap();
-        music_sink.append(source);
         let mut music_sink = Some(music_sink);
-
+        Self::play_music(&music_sink, "assets/music.mp3");
 
         while self.window.is_open() && !self.window.is_key_down(Key::Escape)
         {
@@ -244,6 +256,8 @@ impl Display
 
             // Limit fps;
             self.window.limit_update_rate(Some(std::time::Duration::from_micros(self.delay)));
+
+            Self::play_music(&music_sink, "assets/music.mp3");
 
             let input = self.get_input();
 
