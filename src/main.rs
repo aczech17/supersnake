@@ -27,4 +27,3 @@ fn main()
     display.display_loop(&mut game)
         .unwrap();
 }
-

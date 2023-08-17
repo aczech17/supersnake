@@ -8,7 +8,10 @@ use std::ops::Range;
 type Area = (Range<usize>, Range<usize>);
 
 use itertools::Itertools;
-use rodio::Sink;
+use rand::seq::SliceRandom;
+use rand::thread_rng;
+use rodio::{Decoder, Sink};
+use walkdir::WalkDir;
 
 extern crate bmp;
 
@@ -225,16 +228,46 @@ impl Display
         else { 0 }
     }
 
-    fn play_music(music_sink: &Option<Sink>, filename: &str)
+    fn get_music_sources(path: &str) -> Vec<Decoder<BufReader<File>>>
+    {
+        let mut sources = vec![];
+
+        let dir = WalkDir::new(path);
+        for entry in dir.into_iter().skip(1)
+        {
+            let entry = entry.unwrap();
+            let name = entry.path().display().to_string();
+
+            let file = File::open(name).unwrap();
+            let source = rodio::Decoder::new(BufReader::new(file));
+
+            match source
+            {
+                Ok(s) => sources.push(s),
+                Err(_) => {},
+            }
+        }
+
+        let mut rng = thread_rng();
+        sources.shuffle(&mut rng);
+
+        sources
+    }
+
+    fn play_music(music_sink: &Option<Sink>, path: &str)
     {
         match music_sink
         {
             Some(sink) =>
             {
-                let file = File::open(filename).unwrap();
-                let source = rodio::Decoder::new(BufReader::new(file))
-                    .unwrap();
-                sink.append(source);
+                if sink.empty()
+                {
+                    let sources = Self::get_music_sources(path);
+                    for source in sources
+                    {
+                        sink.append(source);
+                    }
+                }
             },
             None => {},
         }
@@ -244,10 +277,9 @@ impl Display
     {
         let (_stream, stream_handle) = rodio::OutputStream::try_default()
             .unwrap();
-        let music_sink = rodio::Sink::try_new(&stream_handle)
+        let music_sink = Sink::try_new(&stream_handle)
             .unwrap();
         let mut music_sink = Some(music_sink);
-        Self::play_music(&music_sink, "assets/music.mp3");
 
         while self.window.is_open() && !self.window.is_key_down(Key::Escape)
         {
@@ -257,7 +289,7 @@ impl Display
             // Limit fps;
             self.window.limit_update_rate(Some(std::time::Duration::from_micros(self.delay)));
 
-            Self::play_music(&music_sink, "assets/music.mp3");
+            Self::play_music(&music_sink, "assets/music");
 
             let input = self.get_input();
 
