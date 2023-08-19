@@ -15,12 +15,14 @@ fn main()
 {
     let config = Config::new("config.json").unwrap();
 
-    let mut game = Game::new(WIDTH, HEIGHT, 10, 3,
-                             config.head_color, config.snake_color, config.background_color)
+    let mut game = Game::new(WIDTH, HEIGHT,
+                             10, 3, config)
         .unwrap();
 
     let game_area = ((0..WIDTH as usize), (0..HEIGHT as usize));
-    let down_bar = ((0..WIDTH as usize), (HEIGHT as usize..(HEIGHT as usize) + 100));
+    let down_bar = ((0..WIDTH as usize),
+                    (HEIGHT as usize..(HEIGHT as usize) + HEIGHT / 4));
+
     let mut display = Display::new("Super Snake", game_area, down_bar)
         .unwrap();
 

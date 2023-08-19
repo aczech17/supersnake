@@ -5,6 +5,7 @@ mod cell;
 mod snake;
 
 use rand::Rng;
+use crate::config::Config;
 use crate::game::cell::Direction::STOP;
 
 pub(crate) type Color = (u8, u8, u8);
@@ -33,13 +34,16 @@ impl Game
         screen_height: usize,
         cell_size: i64,
         initial_cell_count: i64,
-        head_color: Color,
-        snake_color: Color,
-        background_color: Color,
+        config: Config,
     ) -> Result<Game, String>
     {
         let screen_width = screen_width as i64;
         let screen_height = screen_height as i64;
+
+        let head_color = config.head_color;
+        let snake_color = config.snake_color;
+        let background_color = config.background_color;
+
         let snake = Snake::new
         (
             screen_width,
