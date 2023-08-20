@@ -4,6 +4,7 @@ use crate::game::{Color, Game};
 use minifb::{Key, Window, WindowOptions};
 
 use std::ops::Range;
+use bmp::Image;
 
 type Area = (Range<usize>, Range<usize>);
 
@@ -23,6 +24,7 @@ pub struct Display
     window: Window,
     pixels: Vec<u32>,
     delay: u64,
+    bitmaps: Vec<Image>,
 }
 
 const INITIAL_DELAY: u64 = 80000;
@@ -64,6 +66,25 @@ impl Display
             }
         };
 
+        let mut bitmaps = vec![];
+        for i in 0..=10
+        {
+            let filename = if i == 10
+            {
+                "assets/game_over.bmp".to_string()
+            }
+            else
+            {
+                format!("assets/{i}.bmp")
+            };
+
+            match bmp::open(filename)
+            {
+                Ok(bmp) => bitmaps.push(bmp),
+                Err(e) => return Err(e.to_string()),
+            };
+        }
+
         let display = Display
         {
             game_area,
@@ -71,6 +92,7 @@ impl Display
             window,
             pixels: vec![0; window_width * window_height],
             delay: 80000,
+            bitmaps,
         };
 
         Ok(display)
@@ -163,13 +185,8 @@ impl Display
 
     fn draw_digit(&mut self, digit: char, digit_position: usize) -> Result<(), String>
     {
-        let filename = format!("assets/{digit}.bmp");
-        let bmp_open = bmp::open(filename);
-        let bmp = match bmp_open
-        {
-            Ok(b) => b,
-            Err(e) => return Err(e.to_string()),
-        };
+        let bitmap_index = digit as usize - 48;
+        let bmp = &self.bitmaps[bitmap_index];
 
         let bmp_xs = 0..bmp.get_width();
         let bmp_ys = 0..bmp.get_height();
@@ -195,11 +212,7 @@ impl Display
 
     fn draw_points(&mut self, game: &Game)
     {
-        let digit_width = bmp::open("assets/0.bmp")
-            .unwrap()
-            .get_width()
-        as usize;
-
+        let digit_width = self.bitmaps[0].get_width() as usize;
         let points = game.get_points().to_string();
         let mut digit_position = 0;
         for digit in points.chars()
