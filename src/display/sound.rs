@@ -83,6 +83,11 @@ impl Sound
         let mut rng = thread_rng();
         sources.shuffle(&mut rng);
 
+        if sources.is_empty()
+        {
+            return Err("No music sources found.".to_string());
+        }
+
         Ok(sources)
     }
 

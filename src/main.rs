@@ -6,16 +6,52 @@ mod game;
 use crate::game::Game;
 mod display;
 use crate::display::Display;
+use crate::display::screen::Screen;
+use crate::display::sound::Sound;
 
 fn main()
 {
-    let config = Config::new("config.json").unwrap();
+    let config = match Config::new("config.json")
+    {
+        Ok(c) => c,
+        Err(_) =>
+        {
+            eprintln!("Could not open the config file.");
+            return;
+        }
+    };
 
-    let mut game = Game::new(&config)
-        .unwrap();
+    let mut game = match Game::new(&config)
+    {
+        Ok(g) => g,
+        Err(msg) =>
+        {
+            eprintln!("{msg}");
+            return;
+        }
+    };
+    
+    let screen = match Screen::new("Super snake", &config)
+    {
+        Ok(s) => s,
+        Err(msg) =>
+        {
+            eprintln!("{msg}");
+            return;
+        }
+    };
 
-    let mut display = Display::new("Super Snake", &config, &mut game, "assets/music")
-        .unwrap();
+    let sound = match Sound::new(&"assets/music".to_string())
+    {
+        Ok(s) => {println!("jest sound");Some(s)},
+        Err(msg) => 
+        {
+            eprintln!("Could not create the sound. {msg}");
+            None
+        }
+    };
+
+    let mut display = Display::new(&mut game, screen, sound);
 
     let _ = display.run();
 }
