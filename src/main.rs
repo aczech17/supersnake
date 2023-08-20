@@ -53,5 +53,13 @@ fn main()
 
     let mut display = Display::new(&mut game, screen, sound);
 
-    let _ = display.run();
+    match display.run()
+    {
+        Ok(_) => {}
+        Err(msg) =>
+        {
+            eprintln!("{msg}");
+            return;
+        }
+    }
 }
