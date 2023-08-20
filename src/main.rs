@@ -14,7 +14,8 @@ fn main()
     let mut game = Game::new(&config)
         .unwrap();
 
-    let mut display = Display::new("Super Snake", &config, &mut game, "assets/music");
+    let mut display = Display::new("Super Snake", &config, &mut game, "assets/music")
+        .unwrap();
 
-    display.run();
+    let _ = display.run();
 }

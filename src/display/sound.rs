@@ -18,7 +18,7 @@ impl Sound
 {
     pub fn new(music_path: &String) -> Result<Sound, String>
     {
-        let (stream, stream_handle) = match rodio::OutputStream::try_default()
+        let (stream, stream_handle) = match OutputStream::try_default()
         {
             Ok((stream, handle)) => (stream, handle),
             Err(_) =>
@@ -38,7 +38,7 @@ impl Sound
             }
         };
 
-        Self::attach_sources(&sink, music_path);
+        Self::attach_sources(&sink, music_path)?;
 
         let sound = Sound
         {
@@ -50,18 +50,28 @@ impl Sound
         Ok(sound)
     }
 
-    fn get_music_sources(path: &String) -> Vec<MusicSource>
+    fn get_music_sources(path: &String) -> Result<Vec<MusicSource>, String>
     {
         let mut sources = vec![];
 
         let dir = WalkDir::new(path);
         for entry in dir.into_iter().skip(1)
         {
-            let entry = entry.unwrap();
+            let entry = match entry
+            {
+                Ok(e) => e,
+                Err(e) => return Err(e.to_string()),
+            };
+
             let name = entry.path().display().to_string();
 
-            let file = File::open(name).unwrap();
-            let source = rodio::Decoder::new(BufReader::new(file));
+            let file = match File::open(name)
+            {
+                Ok(f) => f,
+                Err(e) => return Err(e.to_string()),
+            };
+
+            let source = Decoder::new(BufReader::new(file));
 
             match source
             {
@@ -73,23 +83,27 @@ impl Sound
         let mut rng = thread_rng();
         sources.shuffle(&mut rng);
 
-        sources
+        Ok(sources)
     }
 
-    fn attach_sources(sink: &Sink, path: &String)
+    fn attach_sources(sink: &Sink, path: &String) -> Result<(), String>
     {
-        let sources = Self::get_music_sources(path);
+        let sources = Self::get_music_sources(path)?;
         for source in sources
         {
             sink.append(source);
         }
+
+        Ok(())
     }
 
-    pub fn play(&mut self)
+    pub fn play(&mut self) -> Result<(), String>
     {
         if self.sink.empty()
         {
-            Self::attach_sources(&self.sink, &self.music_path);
+            Self::attach_sources(&self.sink, &self.music_path)?;
         }
+
+        Ok(())
     }
 }

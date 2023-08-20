@@ -16,35 +16,35 @@ pub struct Display<'a>
 
 impl <'a> Display<'a>
 {
-    pub fn new(window_name: &str, config: &Config, game: &'a mut Game, music_path: &str) -> Self
+    pub fn new(window_name: &str, config: &Config, game: &'a mut Game, music_path: &str)
+        -> Result<Self, String>
     {
-        let screen = Screen::new(window_name, config)
-            .unwrap();
+        let screen = Screen::new(window_name, config)?;
 
-        let sound = Sound::new(&music_path.to_string())
-            .unwrap();
-
+        let sound = Sound::new(&music_path.to_string())?;
         let sound = Some(sound);
 
-        Display
+        let display = Display
         {
             game,
             screen,
             sound,
-        }
+        };
+
+        Ok(display)
     }
 
-    pub fn run(&mut self)
+    pub fn run(&mut self) -> Result<(), String>
     {
         loop
         {
             match &mut self.sound
             {
-                Some(s) => s.play(),
+                Some(s) => s.play()?,
                 None => {},
             };
 
-            let status = self.screen.draw(&mut self.game).unwrap();
+            let status = self.screen.draw(&mut self.game)?;
             if status == GameOver
             {
                 self.sound.take();
@@ -54,5 +54,7 @@ impl <'a> Display<'a>
                 break;
             }
         }
+
+        Ok(())
     }
 }

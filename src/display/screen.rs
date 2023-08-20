@@ -213,23 +213,25 @@ impl Screen
         Ok(())
     }
 
-    fn draw_points(&mut self, game: &Game)
+    fn draw_points(&mut self, game: &Game) -> Result<(), String>
     {
         let digit_width = self.bitmaps[0].get_width() as usize;
         let points = game.get_points().to_string();
         let mut digit_position = 0;
         for digit in points.chars()
         {
-            self.draw_digit(digit, digit_position).unwrap();
+            self.draw_digit(digit, digit_position)?;
             digit_position += digit_width;
         }
+
+        Ok(())
     }
 
     fn draw_game(&mut self, game: &Game) -> Result<(), String>
     {
         self.draw_game_area(game)?;
         self.draw_down_bar();
-        self.draw_points(game);
+        self.draw_points(game)?;
 
         Ok(())
     }
@@ -239,7 +241,7 @@ impl Screen
         let (game_area_xs, game_area_ys) = self.game_area.clone();
         let game_area_width = game_area_xs.end - game_area_xs.start;
 
-        let game_over_img = bmp::open("assets/game_over.bmp").unwrap();
+        let game_over_img = &self.bitmaps[10];
 
         for (x, y) in game_area_xs.cartesian_product(game_area_ys)
         {
