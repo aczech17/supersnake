@@ -21,8 +21,16 @@ impl <'a> Display<'a>
     {
         let screen = Screen::new(window_name, config)?;
 
-        let sound = Sound::new(&music_path.to_string())?;
-        let sound = Some(sound);
+        let sound = Sound::new(&music_path.to_string());
+        let sound = match sound
+        {
+            Ok(s) => Some(s),
+            Err(msg) =>
+            {
+                eprintln!("{msg}");
+                None
+            }
+        };
 
         let display = Display
         {
