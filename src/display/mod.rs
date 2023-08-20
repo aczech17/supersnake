@@ -22,7 +22,6 @@ pub struct Display
     down_bar: Area,
     window: Window,
     pixels: Vec<u32>,
-    game_going: bool,
     delay: u64,
 }
 
@@ -71,7 +70,6 @@ impl Display
             down_bar,
             window,
             pixels: vec![0; window_width * window_height],
-            game_going: true,
             delay: 80000,
         };
 
@@ -308,9 +306,9 @@ impl Display
 
             let input = self.get_input();
 
-            if self.game_going
+            if game.is_running()
             {
-                self.game_going = game.go(input);
+                game.go(input);
                 self.draw_game(game)?;
             }
             else

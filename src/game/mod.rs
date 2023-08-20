@@ -24,6 +24,7 @@ pub struct Game
     point_cell: Cell,
     points: Points,
     pace: u64,
+    running: bool,
 }
 
 impl Game
@@ -79,6 +80,7 @@ impl Game
             point_cell,
             points: 0,
             pace: 0,
+            running: true,
         };
 
         Ok(game)
@@ -151,7 +153,12 @@ impl Game
         self.pace = self.points * self.points;
     }
 
-    pub(crate) fn go(&mut self, input: Option<Input>) -> bool
+    pub fn is_running(&self) -> bool
+    {
+        self.running
+    }
+
+    pub(crate) fn go(&mut self, input: Option<Input>)
     {
         self.snake.go(input);
 
@@ -174,8 +181,7 @@ impl Game
 
         if self.snake.is_tangled()
         {
-            return false;
+            self.running = false;
         }
-        true
     }
 }
