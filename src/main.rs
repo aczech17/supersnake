@@ -43,7 +43,7 @@ fn main()
 
     let sound = match Sound::new(&"assets/music".to_string())
     {
-        Ok(s) => {println!("jest sound");Some(s)},
+        Ok(s) => Some(s),
         Err(msg) => 
         {
             eprintln!("Could not create the sound. {msg}");
