@@ -1,29 +1,20 @@
 #![windows_subsystem = "windows"] // hide the console window
 
-mod game;
-mod display;
 mod config;
-
 use crate::config::Config;
-use crate::display::Display;
+mod game;
 use crate::game::Game;
-
-const WIDTH: usize = 400;
-const HEIGHT: usize = 400;
+mod display;
+use crate::display::Display;
 
 fn main()
 {
     let config = Config::new("config.json").unwrap();
 
-    let mut game = Game::new(WIDTH, HEIGHT,
-                             10, 3, config)
+    let mut game = Game::new(&config)
         .unwrap();
 
-    let game_area = ((0..WIDTH as usize), (0..HEIGHT as usize));
-    let down_bar = ((0..WIDTH as usize),
-                    (HEIGHT as usize..(HEIGHT as usize) + HEIGHT / 4));
-
-    let mut display = Display::new("Super Snake", game_area, down_bar)
+    let mut display = Display::new("Super Snake", &config)
         .unwrap();
 
     display.display_loop(&mut game)

@@ -28,17 +28,12 @@ pub struct Game
 
 impl Game
 {
-    pub(crate) fn new
-    (
-        screen_width: usize,
-        screen_height: usize,
-        cell_size: i64,
-        initial_cell_count: i64,
-        config: Config,
-    ) -> Result<Game, String>
+    pub(crate) fn new(config: &Config) -> Result<Game, String>
     {
-        let screen_width = screen_width as i64;
-        let screen_height = screen_height as i64;
+        let screen_width = config.screen_width;
+        let screen_height = config.screen_height;
+        let cell_size = config.cell_size;
+        let initial_cell_count = config.initial_cell_count;
 
         let head_color = config.head_color;
         let snake_color = config.snake_color;

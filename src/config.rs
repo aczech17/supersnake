@@ -9,6 +9,10 @@ pub struct Config
     pub(crate) head_color: Color,
     pub(crate) snake_color: Color,
     pub(crate) background_color: Color,
+    pub(crate) screen_width: i64,
+    pub(crate) screen_height: i64,
+    pub(crate) cell_size: i64,
+    pub(crate) initial_cell_count: i64,
 }
 
 impl Config

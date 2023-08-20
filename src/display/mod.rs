@@ -12,6 +12,7 @@ use rand::seq::SliceRandom;
 use rand::thread_rng;
 use rodio::{Decoder, Sink};
 use walkdir::WalkDir;
+use crate::config::Config;
 
 extern crate bmp;
 
@@ -29,8 +30,22 @@ const INITIAL_DELAY: u64 = 80000;
 
 impl Display
 {
-    pub fn new(name: &str, game_area: Area, down_bar: Area) -> Result<Display, String>
+    pub fn new(name: &str, config: &Config) -> Result<Display, String>
     {
+        let game_area =
+        (
+            (0..config.screen_width as usize),
+            (0..config.screen_height as usize),
+        );
+        
+        let down_bar =
+        (
+            (0..config.screen_width as usize),
+
+            (config.screen_height as usize..(config.screen_height as usize) +
+            config.screen_height as usize / 4),
+        );
+
         let (game_xs, _game_ys) = game_area.clone();
         let (_down_bar_xs, down_bar_ys) = down_bar.clone();
         let window_width = game_xs.end;

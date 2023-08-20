@@ -1,5 +1,9 @@
 {
   "head_color":[255,255,0],
   "snake_color":[0,255,0],
-  "background_color":[0,0,128]
+  "background_color":[0,0,128],
+  "screen_width": 400,
+  "screen_height": 400,
+  "cell_size": 10,
+  "initial_cell_count": 3
 }
